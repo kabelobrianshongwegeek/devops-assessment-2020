@@ -1,21 +1,19 @@
-version: 0.2
-
+version: 0.1
 phases:
-  install:
-    commands:
-      - curl -sL https://deb.nodesource.com/setup_14.x | -E bash -
-      - apt install -y nodejs
-  
   pre_build:
     commands:
+      - echo Installing source NPM dependencies...
       - npm install
-  
   build:
     commands:
-      - npm start
-
-  artifacts:
-    files:
-      - "**/*"
-    discard-paths: no
-    base-directory: test-react-app
+      - echo Build started on `date`
+      - npm run build
+  post_build:
+    commands:
+      # copy the contents of /build to S3
+      - aws s3 cp --recursive --acl public-read ./test-react-app s3://codepipeline-us-east-2-188405547365/signapp-pipeline-dem/ 
+      
+artifacts:
+  files:
+    - '**/*'
+  base-directory: test-react-app
